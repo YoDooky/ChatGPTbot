@@ -8,6 +8,13 @@ def get_start_menu():
     return user_menu
 
 
+def get_continue_menu():
+    continue_menu = InlineKeyboardMarkup(row_width=1)
+    continue_button = InlineKeyboardButton(text='🔁Выбрать другое видео🔁', callback_data='start_app')
+    continue_menu.insert(continue_button)
+    return continue_menu
+
+
 def get_collect_data_menu():
     user_menu = InlineKeyboardMarkup(row_width=1)
     get_all_msg_button = InlineKeyboardButton(text='Получить все сообщения',

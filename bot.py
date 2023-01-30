@@ -22,7 +22,7 @@ class BotInit:
     def __init__(self):
         self.bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
         self.dp = Dispatcher(self.bot, storage=MemoryStorage())
-        self.dp.middleware.setup(AccessMiddleware(ACCESS_ID_LIST))
+        # self.dp.middleware.setup(AccessMiddleware(ACCESS_ID_LIST))
 
 
 def set_logging():
@@ -36,7 +36,6 @@ async def setup_bot_commands():
         types.BotCommand(command="/start", description="рестарт бота")
     ]
     await bot.set_my_commands(bot_commands)
-
 
 def init_handlers():
     common.register_handlers(dp)

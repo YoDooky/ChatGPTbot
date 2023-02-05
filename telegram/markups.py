@@ -16,11 +16,29 @@ def get_continue_menu():
 
 
 def get_approve_menu():
-    approve_menu = InlineKeyboardMarkup(row_width=2)
-    approve_button = InlineKeyboardButton(text='👍Подтвердить', callback_data='approve')
-    cancel_button = InlineKeyboardButton(text='🔁Выбрать другое видео🔁', callback_data='start_app')
-    approve_menu.insert(approve_button)
-    approve_menu.insert(cancel_button)
+    approve_menu = InlineKeyboardMarkup(row_width=1)
+    buttons = [InlineKeyboardButton(text='👍Подтвердить', callback_data='check_balance'),
+               InlineKeyboardButton(text='🔁Выбрать другое видео🔁', callback_data='start_app')]
+    for button in buttons:
+        approve_menu.insert(button)
+    return approve_menu
+
+
+def get_refill_balance_menu():
+    approve_menu = InlineKeyboardMarkup(row_width=1)
+    buttons = [InlineKeyboardButton(text='💳Пополнить баланс', callback_data='refill_balance'),
+               InlineKeyboardButton(text='👈Вернуться назад', callback_data='start_app')]
+    for button in buttons:
+        approve_menu.insert(button)
+    return approve_menu
+
+
+def get_spent_minutes_menu():
+    approve_menu = InlineKeyboardMarkup(row_width=1)
+    buttons = [InlineKeyboardButton(text='💸Списать минуты', callback_data='spent_minutes'),
+               InlineKeyboardButton(text='👈Вернуться назад', callback_data='start_app')]
+    for button in buttons:
+        approve_menu.insert(button)
     return approve_menu
 
 

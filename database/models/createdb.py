@@ -23,7 +23,8 @@ class DbCreator:
                             tg_phone text,
                             tg_fname text,
                             tg_lname text,
-                            message text,
+                            minute_balance bigint,
+                            money_spent bigint,
                             timestamp text
                             )""")
 

@@ -8,5 +8,6 @@ class User:
     tg_phone: str
     tg_fname: str
     tg_lname: str
-    message: str
+    minute_balance: int
+    money_spent: int
     timestamp: str

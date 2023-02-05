@@ -1,6 +1,6 @@
 from typing import Dict, List
 from database.models import createdb
-from config.db_config import USERS_TABLE
+# from config.db_config import DB_TABLES, USERS_TABLE
 
 database = createdb.DbCreator()
 conn = database.conn
@@ -94,19 +94,19 @@ def check_table_empty(table: str) -> bool:
         return True
 
 
-def check_table_exist(table: str) -> bool:
-    """Check if table exist"""
-    cursor.execute("SELECT EXISTS (SELECT * FROM information_schema.tables "
-                   f"WHERE table_schema = 'public' AND table_name  = '{table.lower()}');")
-    if cursor.fetchone()[0]:
-        return True
+# def check_table_exist(table: str) -> bool:
+#     """Check if table exist"""
+#     cursor.execute("SELECT EXISTS (SELECT * FROM information_schema.tables "
+#                    f"WHERE table_schema = 'public' AND table_name  = '{table.lower()}');")
+#     if cursor.fetchone()[0]:
+#         return True
+#
+#
+# def check_db_exist():
+#     table_exist = check_table_exist(USERS_TABLE)
+#     if table_exist:
+#         return
+_init_db_()
 
 
-def check_db_exist():
-    table_exist = check_table_exist(USERS_TABLE)
-    if table_exist:
-        return
-    _init_db_()
-
-
-check_db_exist()
+# check_db_exist()

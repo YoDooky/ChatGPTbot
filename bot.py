@@ -37,6 +37,7 @@ async def setup_bot_commands():
     ]
     await bot.set_my_commands(bot_commands)
 
+
 def init_handlers():
     common.register_handlers(dp)
     user_handler = user_menu.UserMenu(bot)

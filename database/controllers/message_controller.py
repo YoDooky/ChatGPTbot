@@ -1,26 +1,48 @@
-from typing import List
+from typing import List, Dict
 
 from database.models.utils import dbcontrol
 from app_types import User
-
 from config.db_config import USERS_TABLE
+from config.app_config import TRIAL_FREE, PRICE_MUL
 
 
-def db_write_message_data(message_data: User):
-    """Write message data to DB"""
-    data = {
-        'tg_id': message_data.tg_id,
-        'tg_username': message_data.tg_username,
-        'tg_phone': message_data.tg_phone,
-        'tg_fname': message_data.tg_fname,
-        'tg_lname': message_data.tg_lname,
-        'message': message_data.message,
-        'timestamp': message_data.timestamp
-    }
+def db_adduser(data: User) -> None:
+    """Adds user to DB when it pressed start"""
+    data_dict = {}
+    for each in data.__annotations__:
+        data_dict[each] = data.__getattribute__(each)
     try:
-        dbcontrol.insert_db(USERS_TABLE, data)
+        dbcontrol.insert_db(USERS_TABLE, data_dict)
     except Exception as ex:
         print(ex)
+
+
+def db_add_minutes(tg_user_id: int, money_amount: int):
+    """Adds minutes to selected user and increment spent money"""
+    minutes_amount = money_amount * PRICE_MUL
+    dbcontrol.update_db(USERS_TABLE, {"minute_balance": minutes_amount}, {"tg_id": tg_user_id})
+    money_spent = db_read_spent_money(tg_user_id) + money_amount
+    dbcontrol.update_db(USERS_TABLE, {"money_spent": money_spent}, {"tg_id": tg_user_id})
+
+
+def db_read_spent_money(tg_user_id: int) -> int:
+    """Return user minute balance"""
+    data_columns = ['tg_id', 'money_spent']
+    table_data = dbcontrol.fetchall(USERS_TABLE, data_columns)
+    for data in table_data:
+        if data.get('tg_id') != tg_user_id:
+            pass
+        return data.get('money_spent')
+
+
+def db_read_minute_balance(tg_user_id: int) -> int:
+    """Return user minute balance"""
+    data_columns = ['tg_id', 'minute_balance']
+    table_data = dbcontrol.fetchall(USERS_TABLE, data_columns)
+    for data in table_data:
+        if data.get('tg_id') != tg_user_id:
+            pass
+        return data.get('minute_balance')
 
 
 def db_read_message_data() -> List[User]:

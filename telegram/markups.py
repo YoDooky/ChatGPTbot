@@ -15,6 +15,15 @@ def get_continue_menu():
     return continue_menu
 
 
+def get_approve_menu():
+    approve_menu = InlineKeyboardMarkup(row_width=2)
+    approve_button = InlineKeyboardButton(text='👍Подтвердить', callback_data='approve')
+    cancel_button = InlineKeyboardButton(text='🔁Выбрать другое видео🔁', callback_data='start_app')
+    approve_menu.insert(approve_button)
+    approve_menu.insert(cancel_button)
+    return approve_menu
+
+
 def get_collect_data_menu():
     user_menu = InlineKeyboardMarkup(row_width=1)
     get_all_msg_button = InlineKeyboardButton(text='Получить все сообщения',

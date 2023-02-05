@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Dict, List
 from youtube_transcript_api import YouTubeTranscriptApi
 import openai
@@ -52,7 +53,6 @@ class VideoSummary:
     def __init__(self, subtitle_text: str, model: str):
         self.subtitle_text = subtitle_text
         self.model = model
-        "text-davinci-003"
 
     def get_optimized_text(self) -> List[str] | None:
         max_tokens = 1600
@@ -124,6 +124,3 @@ def get_ai_summary(youtube_link):
     ru_text = translator.translate(summary_text, src='en', dest='ru')
     return ru_text.text
 
-
-if __name__ == '__main__':
-    get_ai_summary("https://www.youtube.com/watch?v=OCbl7SM4e3g&ab_channel=Betosky")

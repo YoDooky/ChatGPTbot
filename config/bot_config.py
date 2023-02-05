@@ -11,6 +11,6 @@ USER_ID = os.getenv('USER_ID')
 BOT_ID = int(os.getenv('BOT_ID'))
 ACCESS_ID_LIST = [int(os.getenv('ADMIN_1')), int(os.getenv('ADMIN_2'))]
 
-WEBHOOK_PATH = f"/main/{TOKEN}"
+WEBHOOK_PATH = f"/summarybot/{TOKEN}"
 APP_URL = os.getenv('APP_URL')
 WEBHOOK_URL = APP_URL + WEBHOOK_PATH

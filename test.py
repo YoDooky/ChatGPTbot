@@ -1,18 +1,22 @@
-from dataclasses import dataclass
+import asyncio
+
+from glQiwiApi import QiwiP2PClient
+import os
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
+
+p2p_token = os.getenv('P2P_TOKEN')
 
 
-@dataclass
-class User:
-    tg_id: int
-    tg_fname: str
-    minute_balance: int
+async def create_p2p_bill():
+    async with QiwiP2PClient(secret_p2p=p2p_token) as p2p:
+        bill = await p2p.create_p2p_bill(amount=1)
+        print(f"Link to pay bill with {bill.id} id = {bill.pay_url}")
+        # print(bill.id)
+        # print(await p2p.get_bill_status("df978efe-b31a-4b17-b1c4-5fd559684174"))
 
 
-ololo = User(tg_id=1, tg_fname="Ololo", minute_balance=100)
-
-data_dict = {}
-for each in ololo.__annotations__:
-    data_dict[each] = ololo.__getattribute__(each)
-print(data_dict)
-
-
+asyncio.run(create_p2p_bill())
+"PAID"
+"WAITING"

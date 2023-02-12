@@ -8,7 +8,8 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_NAME = os.getenv('DB_NAME')
 DB_PORT = os.getenv('DB_PORT')
 
-USERS_TABLE = 'messages'
+USERS_TABLE = 'users'
+PAYMENTS_TABLE = 'payments'
 
 EXCEL_TABLE_PATH = 'excel/messages.xlsx'
 EXCEL_SHEET_NAME = 'data'

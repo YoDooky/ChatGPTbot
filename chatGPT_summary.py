@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict, List
+from typing import List
 from youtube_transcript_api import YouTubeTranscriptApi
 import openai
 from config.bot_config import CHATGPT_APIKEY
@@ -109,7 +109,11 @@ def get_youtube_link_id(link: str) -> str:
     return link.split('?v=')[-1]
 
 
-def get_ai_summary(youtube_link):
+def get_stripped_text(text: str):
+    pass
+
+
+def get_ai_summary(youtube_link: str, language: str = "ru"):
     link_id = get_youtube_link_id(youtube_link)
     video_subtitles = Subtitles(link_id)
     video_en_text = video_subtitles.get_subtitles_text()
@@ -121,6 +125,7 @@ def get_ai_summary(youtube_link):
     summary_text = video_summary.get_final_summary()
 
     translator = Translator()
+    if language == "en":
+        return summary_text
     ru_text = translator.translate(summary_text, src='en', dest='ru')
     return ru_text.text
-

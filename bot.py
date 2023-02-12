@@ -12,8 +12,7 @@ import logging
 import uvicorn
 
 from config.bot_config import TOKEN, ACCESS_ID_LIST
-from telegram.handlers import common
-from telegram.handlers import user_menu
+from telegram.handlers import common, user_menu, balance_menu
 
 
 class BotInit:
@@ -42,6 +41,8 @@ def init_handlers():
     common.register_handlers(dp)
     user_handler = user_menu.UserMenu(bot)
     user_handler.register_handlers(dp)
+    balance_handler = balance_menu.BalanceMenu(bot)
+    balance_handler.register_handlers(dp)
 
 
 async def main():

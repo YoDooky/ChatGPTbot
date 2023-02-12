@@ -1,5 +1,6 @@
 from typing import Dict, List
 from database.models import createdb
+
 # from config.db_config import DB_TABLES, USERS_TABLE
 
 database = createdb.DbCreator()
@@ -22,7 +23,14 @@ def insert_db(table: str, column_val: Dict):
 
 def update_db(table: str, row_val: Dict, column_val: Dict):
     """Updates data in db"""
-    editable_data = ', '.join([f'{key} = {value}' for key, value in column_val.items()])
+    # editable_data = ', '.join([f'{key} = {value}' for key, value in column_val.items()])
+    data_list = []
+    for key, value in column_val.items():
+        if isinstance(value, str):
+            data_list.append(f"{key} = '{value}'")
+            continue
+        data_list.append(f"{key} = {value}")
+    editable_data = ', '.join(data_list)
     row = list(row_val.keys())[0]
     row_value = row_val.get(row)
     cursor.execute(
@@ -107,6 +115,5 @@ def check_table_empty(table: str) -> bool:
 #     if table_exist:
 #         return
 _init_db_()
-
 
 # check_db_exist()

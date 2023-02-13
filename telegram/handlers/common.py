@@ -39,4 +39,4 @@ async def start_command(message: types.Message, state: FSMContext):
 
 def register_handlers(dp: Dispatcher):
     """Register message handlers"""
-    dp.register_message_handler(start_command, commands="start")
+    dp.register_message_handler(start_command, commands="start", state="*")

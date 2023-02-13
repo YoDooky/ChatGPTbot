@@ -13,7 +13,7 @@ from aux_func import compare_dates
 
 
 class MessageState(StatesGroup):
-    waiting_for_approve = State()
+    waiting_for_link = State()
 
 
 class UserMenu:
@@ -21,7 +21,7 @@ class UserMenu:
         self.bot = bot
 
     @staticmethod
-    async def user_choice(call: types.CallbackQuery):
+    async def user_choice(call: types.CallbackQuery, state: FSMContext):
         if compare_dates(str(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')),
                          message_controller.db_read_expiring_period(call.from_user.id)):
             keyboard = markups.get_refill_balance_menu()
@@ -29,22 +29,29 @@ class UserMenu:
                 await call.message.edit_text(text='К сожалению Ваша подписка не активна, '
                                                   'для пополнения нажмите "Пополнить баланс"',
                                              reply_markup=keyboard)
-            except MessageNotModified:
+            except Exception as ex:
                 await call.message.answer(text='К сожалению Ваша подписка не активна, '
                                                'для пополнения нажмите "Пополнить баланс"',
                                           reply_markup=keyboard)
             return
+        await state.set_state(MessageState.waiting_for_link.state)
         await call.message.answer(text='Скопируйте ссылку на youtube видео и я вам расскажу о чем оно🧐')
 
     @staticmethod
-    async def user_choice_command(message: types.Message):
+    async def user_choice_command(message: types.Message, state: FSMContext):
         if compare_dates(str(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')),
                          message_controller.db_read_expiring_period(message.from_user.id)):
             keyboard = markups.get_refill_balance_menu()
-            await message.answer(text='К сожалению Ваша подписка не активна, '
-                                      'для пополнения нажмите "Пополнить баланс"',
-                                 reply_markup=keyboard)
+            try:
+                await message.edit_text(text='К сожалению Ваша подписка не активна, '
+                                             'для пополнения нажмите "Пополнить баланс"',
+                                        reply_markup=keyboard)
+            except Exception as ex:
+                await message.answer(text='К сожалению Ваша подписка не активна, '
+                                          'для пополнения нажмите "Пополнить баланс"',
+                                     reply_markup=keyboard)
             return
+        await state.set_state(MessageState.waiting_for_link.state)
         await message.answer(text='Скопируйте ссылку на youtube видео и я вам расскажу о чем оно🧐')
 
     @staticmethod
@@ -66,9 +73,11 @@ class UserMenu:
         await call.message.answer('Пожалуйста подождите, идет обработка...')
         try:
             summary_text = get_ai_summary(youtube_link, "ru")
+            await state.finish()
             keyboard = markups.get_continue_menu()
             await call.message.answer(f'{summary_text}', reply_markup=keyboard)
         except Exception as ex:
+            await state.finish()
             await call.message.answer('Не удалось получить краткое описание видео (возможно из-за нагрузки на сервер). '
                                       'Пожалуйста повторите попытку позже...')
 
@@ -80,17 +89,20 @@ class UserMenu:
         await call.message.answer('Пожалуйста подождите, идет обработка...')
         try:
             summary_text = get_ai_summary(youtube_link, "en")
+            await state.finish()
             keyboard = markups.get_continue_menu()
             await call.message.answer(f'{summary_text}', reply_markup=keyboard)
         except Exception as ex:
+            await state.finish()
             await call.message.answer('Не удалось получить краткое описание видео (возможно из-за нагрузки на сервер). '
                                       'Пожалуйста повторите попытку позже...')
 
     def register_handlers(self, dp: Dispatcher):
         """Register message handlers"""
-        dp.register_callback_query_handler(self.user_choice, text="start_app")
-        dp.register_message_handler(self.user_choice_command, commands="messages")
-        dp.register_message_handler(self.get_youtube_link, content_types=["text"], state='*')
-        dp.register_callback_query_handler(self.approve_ru_choose_video, text="approve_choice_ru", state='*')
+        dp.register_callback_query_handler(self.user_choice, text="start_app", state='*')
+        dp.register_message_handler(self.user_choice_command, commands="messages", state='*')
+        dp.register_message_handler(self.get_youtube_link, content_types=["text"], state=MessageState.waiting_for_link)
+        dp.register_callback_query_handler(self.approve_ru_choose_video, text="approve_choice_ru",
+                                           state=MessageState.waiting_for_link)
         dp.register_callback_query_handler(self.approve_en_choose_video, text="approve_choice_en",
-                                           state='*')  # so bad practice but (DRY IT!!!) ... MUST change that
+                                           state=MessageState.waiting_for_link)  # so bad practice but (DRY IT!!!) ... MUST change that

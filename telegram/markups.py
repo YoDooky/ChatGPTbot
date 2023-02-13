@@ -36,8 +36,7 @@ def get_refill_balance_menu():
 def get_payment_link_menu(link: str):
     payment_menu = InlineKeyboardMarkup(row_width=1)
     buttons = [InlineKeyboardButton(text='💰Оплатить', url=link, callback_data='confirm_payment'),
-               InlineKeyboardButton(text='❔Проверить', callback_data='check_payment'),
-               InlineKeyboardButton(text='👈Вернуться назад', callback_data='start_app')]
+               InlineKeyboardButton(text='❔Проверить', callback_data='check_payment')]
     for button in buttons:
         payment_menu.insert(button)
     return payment_menu

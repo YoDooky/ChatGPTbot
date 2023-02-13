@@ -3,6 +3,7 @@ from typing import List
 from youtube_transcript_api import YouTubeTranscriptApi
 import openai
 from config.bot_config import CHATGPT_APIKEY
+from config.app_config import MAX_VIDEO_TOKENS
 from transformers import GPT2TokenizerFast
 import textwrap
 from googletrans import Translator
@@ -58,6 +59,8 @@ class VideoSummary:
         max_tokens = 1600
         tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
         number_of_tokens = len(tokenizer(self.subtitle_text)['input_ids'])
+        if number_of_tokens > MAX_VIDEO_TOKENS:
+            return None
         optimized_text = [self.subtitle_text]
         if number_of_tokens > max_tokens:
             optimized_text = textwrap.wrap(self.subtitle_text, max_tokens * 4)
@@ -81,8 +84,10 @@ class VideoSummary:
         )
         return response.get('choices')[0].get('text')
 
-    def get_final_summary(self) -> str:
+    def get_final_summary(self) -> str | None:
         optimized_text = self.get_optimized_text()
+        if not optimized_text:
+            return  # amount of symbols is too big
         if len(optimized_text) == 1:
             if self.model == "text-davinci-003":
                 response = self.get_summary(self.set_sum_markers(optimized_text[0]), "Summarize this in 4 bullets:\n\n")
@@ -124,8 +129,11 @@ def get_ai_summary(youtube_link: str, language: str = "ru"):
     video_summary = VideoSummary(video_en_text, model)
     summary_text = video_summary.get_final_summary()
 
+    if not summary_text:
+        return 'выбранное видео слишком длинное'
+
     translator = Translator()
     if language == "en":
-        return summary_text
+        return summary_text.strip(":.; \n")
     ru_text = translator.translate(summary_text, src='en', dest='ru')
-    return ru_text.text
+    return ru_text.text.strip(":.; \n")

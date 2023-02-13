@@ -20,17 +20,19 @@ class Schedule:
                 aioschedule.clear(f'{buyer_id}')
                 print(f'[SHEDULE] {ex}\nThere is no such a bill id...')
         if status == 'PAID':
-            aioschedule.clear(f'{buyer_id}')
             message_controller.db_update_payment_bill_id(tg_user_id=buyer_id, bill_id="")
             message_controller.db_add_pay_month(buyer_id)
             expiration_date = message_controller.db_read_expiring_period(buyer_id)
             message_controller.db_update_payment_tg_message_id(tg_user_id=buyer_id,
                                                                message_id=0)
+            aioschedule.clear(f'{buyer_id}')
             try:
                 await self.bot.delete_message(buyer_id, payment_message_id)
             except Exception as ex:
                 pass
-            await self.bot.send_message(buyer_id, f"Платеж совершен успешно, дата следующей оплаты:\n{expiration_date}")
+            await self.bot.send_message(buyer_id,
+                                        f"Платеж совершен успешно, дата следующей оплаты:\n{expiration_date}\n"
+                                        f"Нажмите /messages чтобы продолжить")
 
     async def scheduler(self):
         """Shedule loop"""

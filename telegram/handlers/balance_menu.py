@@ -14,27 +14,28 @@ class BalanceMenu:
     def __init__(self, bot: Bot):
         self.bot = bot
 
-    @staticmethod
-    async def refill_balance(call: types.CallbackQuery):
+    async def refill_balance(self, call: types.CallbackQuery):
+        last_payment_message_id = message_controller.db_read_payment_message_id(call.from_user.id)
+        if last_payment_message_id:
+            await self.bot.delete_message(call.from_user.id, last_payment_message_id)  # delete last payment message
+
         async with QiwiP2PClient(secret_p2p=P2P_TOKEN) as p2p:
             bill = await p2p.create_p2p_bill(amount=MONTH_PRICE)
             vars_global.update_schedule[0] = True
             message_controller.db_update_payment_bill_id(tg_user_id=call.from_user.id, bill_id=bill.id)
             keyboard = markups.get_payment_link_menu(link=bill.pay_url)
             try:
-                await call.message.edit_text(f"Для подписки на месяц ({MONTH_PRICE} RUB) нажмите 'Оплатить'\n"
-                                             f"Для проверки статуса оплаты, нажмите 'Проверить'\n"
-                                             f"Нажмите 'Вернуться назад' для продолжения работы с ботом, "
-                                             f"мы пришлем Вам уведомление об оплате",
-                                             reply_markup=keyboard)
+                pay_msg = await call.message.edit_text(f"Для подписки на месяц ({MONTH_PRICE} RUB) нажмите 'Оплатить'\n"
+                                                       f"Для проверки статуса оплаты, нажмите 'Проверить'\n"
+                                                       f"Мы пришлем Вам уведомление об оплате",
+                                                       reply_markup=keyboard)
             except MessageNotModified:
-                await call.message.answer(f"Для подписки на месяц ({MONTH_PRICE} RUB) нажмите 'Оплатить'\n"
-                                             f"Для проверки статуса оплаты, нажмите 'Проверить'\n"
-                                             f"Нажмите 'Вернуться назад' для продолжения работы с ботом, "
-                                             f"мы пришлем Вам уведомление об оплате",
-                                             reply_markup=keyboard)
+                pay_msg = await call.message.answer(f"Для подписки на месяц ({MONTH_PRICE} RUB) нажмите 'Оплатить'\n"
+                                                    f"Для проверки статуса оплаты, нажмите 'Проверить'\n"
+                                                    f"Мы пришлем Вам уведомление об оплате",
+                                                    reply_markup=keyboard)
             message_controller.db_update_payment_tg_message_id(tg_user_id=call.from_user.id,
-                                                               message_id=call.message.message_id)
+                                                               message_id=pay_msg.message_id)
 
     @staticmethod
     async def check_payment(call: types.CallbackQuery):
@@ -52,7 +53,8 @@ class BalanceMenu:
             expiration_date = message_controller.db_read_expiring_period(call.from_user.id)
             message_controller.db_update_payment_tg_message_id(tg_user_id=call.from_user.id,
                                                                message_id=0)
-            await call.message.answer(f"Платеж совершен успешно, дата следующей оплаты:\n{expiration_date}",
+            await call.message.answer(f"Платеж совершен успешно, дата следующей оплаты:\n{expiration_date}\n"
+                                      f"Нажмите /messages чтобы продолжить",
                                       reply_markup=keyboard)
 
     def register_handlers(self, dp: Dispatcher):
